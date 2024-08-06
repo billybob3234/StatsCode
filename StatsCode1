@@ -1,0 +1,314 @@
+library(ggplot2)
+
+Guhadf <- Copy_of_City_and_Cantonment_Longitude_and_Latitude_2_1_
+Guhadf
+tail(Guhadf)
+lat <- Guhadf$Latitude
+long <-Guhadf$Longitude
+
+framedata <- data.frame(Guhadf)
+framedata
+
+#Looks at Latitude from smallest to largest
+Guhadf %>%
+  arrange(Latitude)
+#Looks at Longitude from smallest to largest
+Guhadf %>%
+  arrange(Longitude)
+
+#Looks at places where Long is greater than 78
+Guhadf %>%
+  filter(Longitude > 78) %>%
+  arrange(Longitude)
+#Looks at places where Lat is greater than 20
+Guhadf %>%
+  filter(Latitude > 20) %>%
+  arrange(Latitude)
+
+FGC <- FINALGUHACALCULATION_2_
+FGC
+tail(FGC)
+
+FGC %>%
+  arrange(morbidityrank)
+#Palaveram has the highest morbidity rank and latlongrank 92
+
+FGC %>%
+  arrange(latlongrank)
+#Aden has the highest latlongrank and morbidityrank 36.5
+
+ggplot(FGC, aes(x=latlong_rank, y=morbidity_rank,color=(FGC$`long-E`>77))) + 
+  geom_point() +
+  ggtitle("Lat/Long Rank vs. Morbidity Rank") +
+  xlab("Lat/Long Rank") +
+  ylab("Morbidity Rank") +
+  labs(color="Longitude-E over median")+
+  stat_smooth(method=lm)
+
+median(FGC$`lat-S`) #67.37
+median(FGC$`long-E`) #77
+
+latlongrank <- c(85,84,88,87,76,70,69,60.5,52,47,39,37,43,60.5,57,36,32,27,19,25,24,28,30,34.5,34.5,40,86,62,51,18,14,13,12,6,4,9,10,11,7,5,3,2,67,95,73,16.5,15,16.5,79,65,75,71,93,98,91,97,96,77,78,81,94,99,64,101,92,100,83,80,58,90,82,74,63,45.5,33,44,45.5,26,31,38,89,20,68,49,1,54,53,48,59,50,55,56,66,42,41,23,29,21.5,21.5,8,72)
+morbidityrank <- c(73,56,82,78,72,77,90,48,27,61.5,52,69.5,67.5,81,58,46,39,75,45,80,92,60,79,63,66,89,35,87,88,41,23,18,25,44,32,59,61.5,42,40,43,13,28,30,57,7,20,49,11,21.5,29,50,67.5,83,33,64,38,55,34,10, 5, 53,21.5,95,9,1,17,24,71,6,98,51,74,99,86,94,19,3,15,93,97,12,47,69.5,101,36.5, 31,36.5,91,16,14,96,85,65,54,2,76,84,4,100,26,8)
+
+shapiro.test(latlongrank) #not normally distributed
+shapiro.test(morbidityrank)#not normally distributed
+
+wilcox.test(latlongrank, morbidityrank,conf.int=T,exact=F,paired=T)
+#they are paired because we are checking latlongrank and morbidity rate for each city
+#there is no difference in medians between the paired groups
+
+cor(FGC$latlongrank, FGC$morbidityrank, method = "spearman")
+#same as above
+
+#using the south and east rankings I made
+
+updatedGF <- file_show_6_
+updatedGF
+dfupdated <- data.frame(updatedGF)
+dfupdated #ok yay so this is everything
+
+#variables: 
+  # morbidity_rank
+  #latlong_rank
+  #location -> group or color by
+
+
+ggplot(updatedGF, aes(x=latlong_rank, y=morbidity_rank))+ 
+  geom_point() +
+  ggtitle("Lat/Long Rank vs. Morbidity Rank") +
+  xlab("Lat/Long Rank") +
+  ylab("Morbidity Rank") +
+  stat_smooth(method=lm)
+
+cor.test(updatedGF$morbidityrank,updatedGF$South)
+cor.test(updatedGF$morbidityrank,updatedGF$East)
+
+#NORTH/ SOUTH SPREAD
+ggplot(updatedGF, aes(x=updatedGF$South, y=morbidity_rank))+
+  geom_jitter(width=0.05)+
+  scale_x_continuous(breaks=c(0,1), labels=c("North", "South"))+
+  ggtitle("Regionality vs.Morbidity Rank")+
+  xlab("Regionality") +
+  ylab("Morbidity Rank")
+
+#EAST/WEST SPREAD
+ggplot(updatedGF, aes(x=updatedGF$East, y=morbidity_rank))+
+  geom_jitter(width=0.05)+
+  scale_x_continuous(breaks=c(0,1), labels=c("West", "East"))+
+  ggtitle("Regionality vs.Morbidity Rank")+
+  xlab("Regionality") +
+  ylab("Morbidity Rank")
+
+updatedGF$Region1
+updatedGF$Region2
+
+#Region1
+ggplot(updatedGF, aes(x=updatedGF$latlongrank, y=morbidity_rank,color=updatedGF$Region1))+
+  geom_jitter(width=0.50)+
+  ggtitle("Lat/Long Rank vs.Morbidity Rank")+
+  xlab("Lat/Long Rank") +
+  labs(color="Regionality")+
+  scale_color_manual(values = c("#492971", "#03989e","#ff8a22"))+
+  ylab("Morbidity Rank")+
+  theme_minimal()+
+  stat_smooth(method=lm)
+
+#Region2
+ggplot(updatedGF, aes(x=updatedGF$latlongrank, y=morbidity_rank,color=updatedGF$Region2))+
+  geom_jitter(width=0.50)+
+  ggtitle("Lat/Long Rank vs.Morbidity Rank")+
+  xlab("Lat/Long Rank") +
+  labs(color="Regionality")+
+  scale_color_manual(values = c("#492971", "#03989e","#ff8a22"))+
+  ylab("Morbidity Rank")+
+  theme_minimal()+
+  stat_smooth(method=lm)
+
+#SMALL MULTIPLES REGION1
+ggplot(updatedGF, aes(x = updatedGF$latlongrank, y = morbidity_rank)) + 
+  geom_point(color= "darkgreen", alpha=1) +
+  theme_bw()+
+  facet_wrap(~updatedGF$Region1)+
+  xlab("Lat/Long Rank")+
+  ggtitle("Lat/Long Rank vs.Morbidity Rank")+
+  ylab("Morbidity Rank")+
+  stat_smooth(method=lm, color="black")
+
+#SMALL MULTIPLES REGION2
+ggplot(updatedGF, aes(x = updatedGF$latlongrank, y = morbidity_rank)) + 
+  geom_point(color= "darkblue", alpha=1) +
+  theme_bw()+
+  facet_wrap(~updatedGF$Region2)+
+  xlab("Lat/Long Rank")+
+  ggtitle("Lat/Long Rank vs.Morbidity Rank")+
+  ylab("Morbidity Rank")+
+  stat_smooth(method=lm, color="black")
+
+#Boxplots - Region 1
+ggplot(updatedGF, aes(x = updatedGF$Region1, y = morbidity_rank)) + 
+  geom_boxplot(color="darkblue", fill="lightblue")  +
+  theme_classic()+
+  xlab("Regionality")+
+  ggtitle("Lat/Long Rank vs.Morbidity Rank")+
+  ylab("Morbidity Rank")+
+  geom_jitter(width=0.15, color="navy")
+  theme_bw()+
+  facet_wrap(~updatedGF$Region1)
+
+#Boxplots - Region 2
+ggplot(updatedGF, aes(x = updatedGF$Region2, y = morbidity_rank)) + 
+  geom_boxplot(color="darkblue", fill="lightblue")  +
+  theme_classic()+
+  xlab("Regionality")+
+  geom_jitter(width=0.15, color="navy")
+  ggtitle("LatLong Rank vs.Morbidity Rank")+
+  ylab("Morbidity Rank")+
+  theme_bw()+
+  facet_wrap(~updatedGF$Region2)
+
+  #Filtered Data
+ R1_Central<- updatedGF%>%
+    filter(updatedGF$Region1=="Central")
+ South<- updatedGF%>%
+   filter(updatedGF$Region1=="South")
+ North<- updatedGF%>%
+   filter(updatedGF$Region1=="North")
+ 
+ R2_Central<- updatedGF%>%
+   filter(updatedGF$Region2=="Central")
+ East<- updatedGF%>%
+   filter(updatedGF$Region2=="East")
+ West<- updatedGF%>%
+   filter(updatedGF$Region2=="West")
+ 
+ #Summary Values
+ summary(North$morbidityrank)
+ summary(South$morbidityrank)
+ summary(R1_Central$morbidityrank)
+ 
+ summary(East$morbidityrank)
+ summary(West$morbidityrank)
+ summary(R2_Central$morbidityrank)
+ 
+ #density total
+ ggplot(updatedGF, aes(x = updatedGF$morbidityrank))  + 
+   geom_histogram(aes(y = ..density..), color = "black", fill = "purple", alpha=.4, binwidth = 0.5) + 
+   geom_density(alpha = 0.7, fill = "mistyrose") + 
+   coord_cartesian(xlim = c(0, 101))+
+   theme_classic() +
+   xlab("Morbidity Rank Total")+
+   ggtitle("Morbidity Rank v Density")
+ 
+ #Density graph for each summary value
+ summary(North$morbidityrank)
+ 
+ ggplot(North, aes(x = North$morbidityrank))  + 
+   geom_histogram(aes(y = ..density..), color = "black", fill = "purple", alpha=.4, binwidth = 0.5) + 
+   geom_density(alpha = 0.7, fill = "mistyrose") + 
+   coord_cartesian(xlim = c(0, 101))+
+   theme_classic() +
+   xlab("Morbidity Rank in the North")+
+   ggtitle("Morbidity Rank in the North")
+
+South <- data.frame(South$morbidityrank)
+
+ggplot(South, aes(x=South.morbidityrank))+
+  geom_histogram(aes(y = ..density..), color = "black", fill = "purple", alpha=.4, binwidth = 0.5) + 
+  geom_density(alpha = 0.7, fill = "mistyrose") + 
+  theme_classic() +
+  xlab("Morbidity Rank in the South")+
+  ggtitle("Morbidity Rank in the South")
+
+East <- data.frame(East$morbidityrank)
+
+ggplot(East, aes(x=East.morbidityrank))+
+  geom_histogram(aes(y = ..density..), color = "black", fill = "purple", alpha=.4, binwidth = 0.5) + 
+  geom_density(alpha = 0.7, fill = "mistyrose") + 
+  theme_classic() +
+  xlab("Morbidity Rank in the East")+
+  ggtitle("Morbidity Rank in the East")
+
+West <- data.frame(West$morbidityrank)
+
+ggplot(West, aes(x=West.morbidityrank))+
+  geom_histogram(aes(y = ..density..), color = "black", fill = "purple", alpha=.4, binwidth = 0.5) + 
+  geom_density(alpha = 0.7, fill = "mistyrose") + 
+  theme_classic() +
+  xlab("Morbidity Rank in the West")+
+  ggtitle("Morbidity Rank in the West")
+
+#Heatmap
+  
+library(ggplot2)
+library(hrbrthemes)
+
+heatx <- updatedGF$latlongrank
+heaty <- updatedGF$morbidityrank
+data <- expand.grid(X=heatx, Y=heaty)
+data$Z <- runif(10201, 0)
+
+ggplot(data, aes(X, Y, fill= Z)) + 
+  geom_tile()+
+  xlab("Lat/Long Rank")+
+  ylab("Morbidity Rank")+
+  labs(fill="Density Strength")+
+  scale_fill_distiller(palette = "Greens") +
+  theme_ipsum()
+
+#trying something
+
+heatx <- updatedGF$latlongrank
+heaty <- updatedGF$morbidityrank
+data <- expand.grid(X=heatx, Y=heaty)
+data$Z <- runif(updatedGF$Region1, 0, 5)
+
+ggplot(data, aes(X, Y, fill= Z)) + 
+  geom_tile()+
+  xlab("Lat/Long Rank North/South")+
+  ylab("Morbidity Rank")+
+  labs(fill="Density Strength")+
+  scale_fill_distiller(palette = "YlOrRd") +
+  theme_ipsum()
+
+#pt2
+heatx <- updatedGF$latlongrank
+heaty <- updatedGF$morbidityrank
+data <- expand.grid(X=heatx, Y=heaty)
+data$Z <- runif(updatedGF$Region2, 0, 5)
+
+ggplot(data, aes(X, Y, fill= Z)) + 
+  geom_tile()+
+  xlab("Lat/Long Rank East/West")+
+  ylab("Morbidity Rank")+
+  labs(fill="Density Strength")+
+  scale_fill_distiller(palette = "Blues") +
+  theme_ipsum()
+
+#assigning var.
+
+lat_S <- updatedGF$`lat-S`
+long_E <- updatedGF$`long-E`
+Morbidity <- updatedGF$Morbidity
+
+#second heat map
+
+library(ggplot2)
+install.packages("tidyverse")
+
+ggplot(updatedGF, aes(lat_S, long_E, fill= Morbidity)) + 
+  geom_tile()+
+  xlab("Lat-S")+
+  ylab("Long-E")+
+  scale_fill_distiller(palette = "Blues") +
+  labs(fill="Morbidity")+
+  
+
+#once again...
+
+heatmapdf1 <- as.matrix(heatmapdf)
+#x -> lat, y-> long, z -> morbidity 
+#df and matrix values
+heatmap(heatmapdf1, scale="column",col = heat.colors(20),xlab="Morbidity/Lat-S/Long-E", ylab="observations", main="heatmap")
+
+
